@@ -65,4 +65,36 @@ int execute_command(char *command, char *prog_name)
 	}
 
 	child_pid = fork();
+
+	if (child_pid == -1)
+	{
+		perror("Error en fork");
+		free(args);
+		free(full_path);
+		return (1);
+	}
+
+	if (child_pid == 0)
+	{
+		args[0] = full_path;
+
+		if (execve(full_path, args, environ) == -1)
+		{
+			fprintf(stderr, "%s: 1: %s: not found\n", prog_name, args[0]);
+			free(args);
+			free(full_path);
+			exit(127);
+		}
+	}
+	else
+	{
+		waitpid(child_pid, &status, 0);
+		free(args);
+		free(full_path);
+
+		if (WIFEXITED(status))
+			return (WEXITSTATUS(status));
+	}
+
+	return (status);
 }
