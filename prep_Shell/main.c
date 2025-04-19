@@ -50,7 +50,7 @@ char *read_command(void)
 	if (chars_read == -1)
 	{
 		free(line);
-		return NULL;
+		return (NULL);
 	}
 
 	if (line[chars_read - 1] == '\n')

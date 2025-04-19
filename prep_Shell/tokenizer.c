@@ -1,3 +1,5 @@
+#include "shell.h"
+
 /**
  * tokenize - Divide un comando en tokens (palabras)
  * @command: El comando a dividir
@@ -9,71 +11,58 @@ char **tokenize(char *command)
 	char *token;
 	int i = 0;
 	char *delim = " \t\r\n\a";
+	char *command_copy;
 
-	tokens = malloc(sizeof(char *) * 64);
-	if (!tokens)
+	command_copy = strdup(command);
+	if (!command_copy)
 	{
 		perror("Error de memoria");
 		exit(1);
 	}
 
-	token = strtok(command, delim);
+	tokens = malloc(sizeof(char *) * 64);
+	if (!tokens)
+	{
+		perror("Error de memoria");
+		free(command_copy);
+		exit(1);
+	}
+
+	token = strtok(command_copy, delim);
 	while (token != NULL)
 	{
-		tokens[i] = token;
+		tokens[i] = strdup(token);
+		if (!tokens[i])
+		{
+			perror("Error de memoria");
+			while (--i >= 0)
+				free(tokens[i]);
+			free(tokens);
+			free(command_copy);
+			exit(1);
+		}
 		i++;
 		token = strtok(NULL, delim);
 	}
 	tokens[i] = NULL;
 
+	free(command_copy);
 	return (tokens);
 }
 
 /**
- * execute_command - Ejecuta un comando con argumentos
- * @command: El comando a ejecutar
- * @prog_name: El nombre del programa (para mensajes de error)
- * Return: Estado de salida del comando
+ * free_tokens - Libera la memoria asignada para los tokens
+ * @tokens: Array de tokens a liberar
  */
-int execute_command(char *command, char *prog_name)
+void free_tokens(char **tokens)
 {
-	pid_t child_pid;
-	int status = 0;
-	char **args;
+	int i;
 
-	args = tokenize(command);
+	if (!tokens)
+		return;
 
-	if (!args[0])
-	{
-		free(args);
-		return (0);
-	}
+	for (i = 0; tokens[i]; i++)
+		free(tokens[i]);
 
-	child_pid = fork();
-    
-    if (child_pid == -1) /* Error al crear el proceso */
-    {
-        perror("Error en fork");
-        free(args);
-        return (1);
-    }
-
-    if (child_pid == 0)
-    {
-	    if (execve(args[0], args, environ) == -1)
-	    {
-		    fprintf(stderr, "%s: 1: %s: not found\n", prog_name, args[0]);
-		    free(args);
-		    exit(127);
-	    }
-    }
-    else
-    {
-	    waitpid(child_pid, &status, 0);
-	    free(args);
-
-	    if (WIFEXITED(status))
-		    return (WEXITSTATUS(status));
-    }
-    return (status);
+	free(tokens);
 }
