@@ -55,7 +55,7 @@ int execute_command(char *command, char *prog_name)
     {
         perror("Error en fork");
         free(args);
-        return 1;
+        return (1);
     }
 
     if (child_pid == 0)
@@ -73,7 +73,7 @@ int execute_command(char *command, char *prog_name)
 	    free(args);
 
 	    if (WIFEXITED(status))
-		    return WEXITSTATUS(status);
+		    return (WEXITSTATUS(status));
     }
     return (status);
 }
