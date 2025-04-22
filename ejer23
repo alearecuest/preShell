@@ -1,0 +1,52 @@
+#include <stdio.h>
+
+// Función para verificar si B es un subarreglo de A sin usar bool
+int esSubarreglo(int A[], int tamA, int B[], int tamB) {
+    if (tamB > tamA) return 0; // En lugar de false, usamos 0
+    
+    for (int i = 0; i <= tamA - tamB; i++) {
+        int encontrado = 1; // Usamos 1 en lugar de true
+        for (int j = 0; j < tamB; j++) {
+            if (A[i + j] != B[j]) {
+                encontrado = 0; // Usamos 0 en lugar de false
+                break;
+            }
+        }
+        if (encontrado == 1) return 1; // Usamos 1 en lugar de true
+    }
+    return 0; // Usamos 0 en lugar de false
+}
+
+// Función para comparar arreglos sin usar bool
+int compararArreglos(int A[], int tamA, int B[], int tamB) {
+    // Si son iguales
+    if (tamA == tamB) {
+        int iguales = 1; // 1 en lugar de true
+        for (int i = 0; i < tamA; i++) {
+            if (A[i] != B[i]) {
+                iguales = 0; // 0 en lugar de false
+                break;
+            }
+        }
+        if (iguales == 1) return 0;
+    }
+
+    // Si A es un superarreglo de B
+    if (esSubarreglo(A, tamA, B, tamB) == 1) return 1;
+
+    // Si B es un subarreglo de A
+    if (esSubarreglo(B, tamB, A, tamA) == 1) return 2;
+
+    // Si son completamente diferentes
+    return -1;
+}
+
+int main() {
+    int A[] = {1, 2, 3, 4, 5};
+    int B[] = {2, 3, 4};
+    
+    int resultado = compararArreglos(A, 5, B, 3);
+    printf("Resultado: %d\n", resultado);
+    
+    return 0;
+}
